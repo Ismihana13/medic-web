@@ -1,0 +1,128 @@
+<div class="container">
+  <h2>Popis Korisnika </h2>
+  <div class="d-flex justify-content-end mb-3">
+    <button  (click)="otvoriModalZaNovokKorisnika()" class="btn btn-outline-dark dugme">Dodaj novog korisnika</button>
+  </div>
+  <table class="table table-striped">
+    <thead class="thead-dark">
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Ime</th>
+      <th scope="col">Korisničko ime</th>
+      <th scope="col">Datum zadnje prijave</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let korisnik of korisnici" (click)="otvoriModal(korisnik)">
+      <td>{{ korisnik.id }}</td>
+      <td>{{ korisnik.ime }}</td>
+      <td>{{ korisnik.korisnickoIme }}</td>
+      <td *ngIf="datumZadnjePrijave[korisnik.id!]!==null">{{ datumZadnjePrijave[korisnik.id!] | date:'dd.MM.yyyy HH:mm' }}</td>
+      <td *ngIf="datumZadnjePrijave[korisnik.id!]===null">{{ 'Nema podataka' }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal za edit korisnika -->
+<div *ngIf="otvori" class="modal fade show" id="exampleModalLive" tabindex="-1" aria-labelledby="exampleModalLiveLabel" aria-modal="true" role="dialog" style="display: block;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLiveLabel">Podaci o uposleniku </h5>
+        <button type="button" class="btn-close" (click)="otvori=false" aria-label="Close">x</button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">ID</label>
+          <input class="form-control" type="text"  [(ngModel)]="trenutniKorisnik.id" [disabled]="trenutniKorisnik.readonly" placeholder="Id" readonly>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ime</label>
+          <input class="form-control" type="text" [(ngModel)]="trenutniKorisnik.ime" [disabled]="trenutniKorisnik.readonly" placeholder="Ime">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Korisničko ime</label>
+          <input class="form-control" type="text" [(ngModel)]="trenutniKorisnik.korisnickoIme" [disabled]="trenutniKorisnik.readonly" placeholder="Kroisnicko ime">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Datum zadnje prijave</label>
+          <input class="form-control" type="text" [disabled]="trenutniKorisnik.readonly" [value]="datumZadnjePrijave[trenutniKorisnik?.id] ? (datumZadnjePrijave[trenutniKorisnik.id] | date: 'dd.MM.yyyy HH:mm') : 'Nema podataka'" readonly placeholder="Datum zadnje prijave">
+        </div>
+        <div class="mb-3">
+          <div *ngIf="trenutniKorisnik.slika">
+            <img [src]="trenutniKorisnik.slika" alt="Slika korisnika" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+          </div>
+          <label class="form-label">Slika</label>
+          <input class="form-control" type="text" [(ngModel)]="trenutniKorisnik.slika"[disabled]="trenutniKorisnik.readonly"  placeholder="Slika">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-control" [(ngModel)]="trenutniKorisnik.status" [disabled]="trenutniKorisnik.readonly">
+            <option [ngValue]="true">Aktivan</option>
+            <option [ngValue]="false">Neaktivan</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Datum rođenja</label>
+          <input class="form-control" type="date" [(ngModel)]="trenutniKorisnik.datumRodjenja" [disabled]="trenutniKorisnik.readonly" (ngModelChange)="trenutniKorisnik.datumRodjenja = $event" placeholder="Datum rođenja">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Narudžbe</label>
+          <input class="form-control" type="number" [(ngModel)]="trenutniKorisnik.brojNarudzbi" [disabled]="trenutniKorisnik.readonly" placeholder="Broj narudžbi" min="0" max="10">
+        </div>
+        <div class="mb-3 ">
+          <button *ngIf="!trenutniKorisnik.isBlokiran" type="button" class="btn btn-light" style="outline: #212529 2px solid;" (click)="blokirajOdbokirajKorisnika(trenutniKorisnik)">Blokiraj</button>
+          <button *ngIf="trenutniKorisnik.isBlokiran" type="button" class="btn btn-light" style="outline: #212529 2px solid;" (click)="blokirajOdbokirajKorisnika(trenutniKorisnik)">Odblokiraj</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="otvori = false" style="outline: #212529 2px solid;">Nazad</button>
+        <button type="button" class="btn btn-primary"  style="outline: #212529 2px solid;" (click)="sacuvajPromjene(trenutniKorisnik)" >Sacuvaj promjene</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal za dodavanje novog korisnika-->
+<div *ngIf="noviModal" class="modal fade show"  id="exampleModalLive1" tabindex="-1" aria-labelledby="exampleModalLiveLabel" aria-modal="true" role="dialog" style="display: block;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLiveLabel ">Dodaj novog korisnika </h5>
+        <button type="button" class="btn-close" (click)="noviModal=false" aria-label="Close">x</button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Korisničko ime</label>
+          <input class="form-control" type="text" [(ngModel)]="noviKorisnik.korisnickoIme" placeholder="Kroisnicko ime">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Lozinka</label>
+          <input class="form-control" type="text" [(ngModel)]="noviKorisnik.lozinka"  placeholder="Lozinka">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ime</label>
+          <input class="form-control" type="text" [(ngModel)]="noviKorisnik.ime"  placeholder="Ime">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Narudžbe</label>
+          <input class="form-control" type="number" [(ngModel)]="noviKorisnik.brojNarudzbi"   placeholder="Broj narudžbi" min="0" max="10">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">URL Slike</label>
+          <input class="form-control" type="text"  [(ngModel)]="noviKorisnik.slika"  placeholder="Slika">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Datum</label>
+          <input class="form-control" type="date"  placeholder="Datum" [ngModel]="this.noviKorisnik.datumRodjenja" (ngModelChange)="this.noviKorisnik.datumRodjenja=$event">
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="noviModal = false" style="outline: #212529 2px solid;">Nazad</button>
+        <button type="button" class="btn btn-primary"  style="outline: #212529 2px solid;" (click)="dodajNovogKroisnika()" >Dodaj novog korisnika</button>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
