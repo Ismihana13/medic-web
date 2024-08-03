@@ -1,2 +1,2 @@
 # medic-web
-URL https://deluxe-boba-ad5bdf.netlify.app/
+Web app URL https://deluxe-boba-ad5bdf.netlify.app/
